@@ -6,10 +6,39 @@ object Expressions {
 
   def isAllDigits(x: String): Boolean = x forall Character.isDigit
 
+  def precedence(y: String): Double = {
+    /*val eval: List[List[String]] = List(List("^"), List("*", "/"), List("+", "-"))
+    val pow = (a: Double, b: Double) => Math.pow(a, b)
+    val mul = (a: Double, b: Double) => a * b
+    val div = (a: Double, b: Double) => a / b
+    val add = (a: Double, b: Double) => a + b
+    val sub = (a: Double, b: Double) => a - b
+
+    val operatorTable: Map[String, (Double, Double) => Double] = Map(
+      "^" -> pow,
+      "*" -> mul,
+      "/" -> div,
+      "+" -> add,
+      "-" -> sub*/
+    var x: Int = 0
+
+    if(y == "^"){
+      x = x +1
+    } else if (y == "*" || y == "/"){
+      x = x + 2
+    } else if (y == "3" || y == "+"){
+      x = x + 3
+    }
+
+    x
+  }
+
   def evaluateArithmetic(expression:String): Double = {
-    val eval: List[List[String]] = List(List("^"), List("*", "/"), List("+", "-"))
-    val operatorStack:  ListBuffer[String] = ListBuffer()
-    var queue = new ListBuffer[String]()
+
+    //val eval: List[List[String]] = List(List("^"), List("*", "/"), List("+", "-"))
+
+    var operatorStack = new ListBuffer[String]
+    var queue = new ListBuffer[String]
 
     // Removes spaces from input expression
     var y: String = expression.filterNot((x: Char) => x.isWhitespace)
@@ -31,9 +60,17 @@ object Expressions {
       for (i <- tokenBuffer) { // For tokens in token List
         if (isAllDigits(i)) {
           queue = queue :+ i
-        } else if (i == "*" || i == "/" || i == "+" || i == "-" || i == "^") {
-          while (operatorStack.nonEmpty){
-
+        } else if (!isAllDigits(i)) { // If token is an operator (not a number)
+          while (precedence(operatorStack.last) >= precedence(i) && operatorStack.last != "("){
+            queue ++ operatorStack.reverse
+            operatorStack.clear()
+          }
+          operatorStack = operatorStack :+ i
+        } else if (i == "("){
+          operatorStack = operatorStack :+ i
+        } else if( i == ")"){
+          while(operatorStack.last != "("){
+            operatorStack.tail
           }
         }
       }
