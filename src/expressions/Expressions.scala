@@ -33,7 +33,19 @@ object Expressions {
     x
   }
 
-  def evaluateArithmetic(expression:String): Double = {
+  def precedencev2(z: String): Double = {
+    val eval: List[List[String]] = List(List("^"), List("*", "/"), List("+", "-"))
+    var number: Int = 0
+    for (i <- 1 to eval.size){
+      if(eval(i).contains(z)){ //SWAP, USE LESS THAN INSTEAD OF GREATER
+        number = number + i
+      }
+    }
+    number
+
+  }
+
+  def evaluateArithmetic(expression:String): ListBuffer[String] = {
 
     //val eval: List[List[String]] = List(List("^"), List("*", "/"), List("+", "-"))
 
@@ -60,19 +72,30 @@ object Expressions {
       for (i <- tokenBuffer) { // For tokens in token List
         if (isAllDigits(i)) {
           queue = queue :+ i
-        } else if (!isAllDigits(i)) { // If token is an operator (not a number)
-          while (precedence(operatorStack.last) >= precedence(i) && operatorStack.last != "("){
-            queue ++ operatorStack.reverse
-            operatorStack.clear()
+        } else if (i == "^" || i == "*" || i == "/" || i == "+" || i == "-") { // If token is an operator (not a number)
+          while (precedence(operatorStack.last) >= precedence(i) && operatorStack.last != "(" && operatorStack.nonEmpty){
+            queue = queue :+ operatorStack.head
+            operatorStack -= operatorStack.head
           }
           operatorStack = operatorStack :+ i
         } else if (i == "("){
           operatorStack = operatorStack :+ i
         } else if( i == ")"){
           while(operatorStack.last != "("){
-            operatorStack.tail
+            queue = queue :+ operatorStack.last
+            operatorStack -= operatorStack.last
+          }
+          if(operatorStack.last == "("){
+            operatorStack -= operatorStack.last
           }
         }
+      }
+    }
+
+    if(size == 1){
+      while(operatorStack.nonEmpty){
+        queue = queue :+ operatorStack.head
+        operatorStack -= operatorStack.head
       }
     }
 
@@ -80,7 +103,7 @@ object Expressions {
 another operator will have higher precedence (evaluated first). Operators in
 the same list will have equal precedence (ex. For arithmetic this would be
 List(List(“^”), List(“*”, “/”), List(“+”, “-”))*/
-
+tokenBuffer
 
   }
 
